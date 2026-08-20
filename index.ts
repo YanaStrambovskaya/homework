@@ -1,53 +1,130 @@
-// Завдання 1 : Останній елемент
-function getLast<T>(value: T[]): T | undefined {
-  return value[value.length - 1];
+// Завдання 1 : Дженерик в інтерфейсі
+// Опишіть інтерфейс Result<T>, який описує результат операції:
+
+// success булеве
+// data значення типу T
+// timestamp дата
+// Створіть дві змінні: одну типу Result<string>, другу типу Result<number[]>.
+interface Result<T> {
+  success: boolean;
+  data: T;
+  timestamp: Date;
 }
 
-const n = getLast([1, 2, 3]); // має бути number | undefined
-const s = getLast(["a", "b"]); // має бути string | undefined
-const e = getLast([]); // undefined
+const stringResult: Result<string> = {
+  success: true,
+  data: "Some information",
+  timestamp: new Date(),
+};
 
-// Завдання 2 : Обгортка в масив
-function wrapInArray<T>(value: T): T[] {
-  return [value];
+const numberResult: Result<number> = {
+  success: true,
+  data: 3,
+  timestamp: new Date(),
+};
+
+// Завдання 2 : Відповідь API
+interface ApiResponse<T> {
+  status: "success" | "error";
+  data: T;
 }
 
-const a = wrapInArray(5); // number[]
-const b = wrapInArray("hello"); // string[]
-
-// Завдання 3 : Дві комірки
-function swap<T, K>(a: T, b: K): [K, T] {
-  return [b, a];
+interface User {
+  id: number;
+  email: string;
 }
 
-// const r = swap("Аліна"); // Expected 2 arguments, but got 1.
-const r = swap("Аліна", 26);
-
-// Завдання 4 : Полагодьте функцію
-function filterAndTransform<T, R>(
-  arr: T[],
-  predicate: (item: T) => boolean,
-  transform: (item: T) => R
-): R[] {
-  return arr.filter(predicate).map(transform);
+interface Post {
+  id: number;
+  title: string;
 }
 
-// Після виправлення це має працювати:
-const result = filterAndTransform(
-  [1, 2, 3, 4],
-  (n) => n % 2 === 0,
-  (n) => `Число: ${n}`
-);
-// result: string[]
+const userResponse: ApiResponse<User> = {
+  status: "success",
+  data: {
+    id: 1,
+    email: "example@gamil.com",
+  },
+};
+const postResponse: ApiResponse<Post> = {
+  status: "success",
+  data: {
+    id: 2,
+    title: "Post Ttile",
+  },
+};
 
-// Завдання 5 : Обмеження
-function printId<T extends { id: number }>(obj: T): T {
-  console.log(obj.id);
-  return obj;
+// Завдання 3 : Дженерик у класі
+
+class Queue<T> {
+  private items: T[] = [];
+
+  enqueue(item: T): void {
+    this.items.push(item);
+  }
+  dequeue(): T | undefined {
+    return this.items.shift();
+  }
+  size(): number {
+    return this.items.length;
+  }
 }
 
-const user = printId({ id: 1, email: "a@test.com" });
-user.email; // має працювати, тип не втрачено
+const q = new Queue<string>();
 
-// printId({ name: "Alice" });   // має бути помилка: немає id
-// printId({ id: "abc" });       // має бути помилка: id не число
+q.enqueue("a");
+q.enqueue("b");
+q.dequeue(); // "a"
+q.size(); // 1
+
+// q.enqueue(42); // Argument of type 'number' is not assignable to parameter of type 'string'
+
+// Завдання 4 : Обгортка, що зберігає тип
+async function withLogging<T>(
+  name: string,
+  callback: () => Promise<T>
+): Promise<T> {
+  console.log(`Початок ${name}`);
+  const result = await callback();
+  console.log(`Готово ${name}`);
+  return result;
+}
+
+async function fetchUser(): Promise<User> {
+  return {
+    id: 1,
+    email: "yana@gmail.com",
+  };
+}
+async function fetchPosts(): Promise<Post[]> {
+  return [
+    {
+      id: 1,
+      title: "Title 1",
+    },
+    {
+      id: 2,
+      title: "Title 2",
+    },
+  ];
+}
+
+const user = await withLogging("fetchUser", () => fetchUser());
+// user має бути типу User
+
+const posts = await withLogging("fetchPosts", () => fetchPosts());
+// posts має бути типу Post[]
+
+// Завдання 5 : Знайдіть зайве
+
+// А
+function logValue(value: unknown): void {
+  console.log(value);
+}
+
+// Б
+function parseJson(json: string): unknown {
+  return JSON.parse(json);
+}
+
+const user1 = parseJson('{"id": 1}');
