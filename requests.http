@@ -1,0 +1,178 @@
+### Online Store API
+
+@baseUrl = http://localhost:3000
+
+### 1. Register a user
+# @name registrationUserOne
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "email": "owner_one.store@example.com",
+  "password": "password123"
+}
+
+### 2. Register a user
+# @name registrationUserTwo
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "email": "owner-two.store@example.com",
+  "password": "password123"
+}
+
+### 3. User login
+# @name loginUser
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "owner-two.store@example.com",
+  "password": "password123"
+}
+
+### 4. Get user
+GET {{baseUrl}}/users/{{loginUser.response.body.$.user.id}}
+
+### 5. Get user's settings
+GET {{baseUrl}}/users/settings
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+### 6. Update the authenticated user's settings
+PUT {{baseUrl}}/users/settings
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "settings": {
+    "theme": "dark",
+    "language": "uk",
+    "notifications": false
+  }
+}
+
+### 7. Create a product
+# @name createProduct
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "name": "Product Two",
+  "description": "Some description for product two",
+  "price": 199.99
+}
+
+### 8. Get user`s all products
+GET {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+### 9. Get the created product by ID
+GET {{baseUrl}}/products/{{createProduct.response.body.$.id}}
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+### 10. Update the product
+PUT {{baseUrl}}/products/{{createProduct.response.body.$.id}}
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "description": "Wireless mechanical keyboard with hot-swappable tactile switches",
+  "price": 119.99
+}
+
+### 11. Add a color attribute
+POST {{baseUrl}}/products/{{createProduct.response.body.$.id}}/attributes
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "attributeName": "color",
+  "attributeValue": "black"
+}
+
+### 12. Add a switch-type attribute
+POST {{baseUrl}}/products/{{createProduct.response.body.$.id}}/attributes
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "attributeName": "switchType",
+  "attributeValue": "tactile"
+}
+
+### 13. Get all attributes of the product
+GET {{baseUrl}}/products/{{createProduct.response.body.$.id}}/attributes
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+### 14. Register a second user
+# @name registerCustomer
+POST {{baseUrl}}/users/register
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+
+### 15. Log in as the second user
+# @name loginCustomer
+POST {{baseUrl}}/users/login
+Content-Type: application/json
+
+{
+  "email": "customer@example.com",
+  "password": "password123"
+}
+
+### 16. A non-owner attempts to update the product
+PUT {{baseUrl}}/products/{{createProduct.response.body.$.id}}
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.token}}
+
+{
+  "price": 1
+}
+
+### 17. Try to create a product without a JWT
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "name": "Unauthorized product",
+  "description": "This product must not be created",
+  "price": 10
+}
+
+### 18. Try a protected endpoint with an invalid authorization format
+GET {{baseUrl}}/users/settings
+Authorization: InvalidTokenValue
+
+### 19. Try to get a nonexistent product
+GET {{baseUrl}}/products/999999
+Content-Type: application/json
+Authorization: Bearer {{loginCustomer.response.body.$.token}}
+
+
+### 20. Create a temporary product for deletion testing
+# @name createTemporaryProduct
+POST {{baseUrl}}/products
+Content-Type: application/json
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+{
+  "name": "Temporary Product",
+  "description": "This product is created only to test deletion",
+  "price": 1
+}
+
+### 21. Delete the temporary product as its owner
+DELETE {{baseUrl}}/products/{{createTemporaryProduct.response.body.$.id}}
+Authorization: Bearer {{loginUser.response.body.$.token}}
+
+### 22. Verify that the deleted product no longer exists
+GET {{baseUrl}}/products/{{createTemporaryProduct.response.body.$.id}}
+Authorization: Bearer {{loginUser.response.body.$.token}}
