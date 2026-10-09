@@ -1,0 +1,68 @@
+@baseUrl = http://localhost:3000
+
+### All reviews
+# @name getReviews
+GET {{baseUrl}}/reviews
+
+
+### Get Review by book id
+# @name getReviewsByBookId
+GET {{baseUrl}}/reviews?bookId=1
+
+
+### Create a new Review
+# @name createReview
+POST {{baseUrl}}/reviews
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "text": "Дуже цікава книжка.",
+  "rating": 5
+}
+
+
+### Create a Review for the book that not exist
+# @name createReviewForMissingBook
+POST {{baseUrl}}/reviews
+Content-Type: application/json
+
+{
+  "bookId": 999,
+  "text": "Рецензія для неіснуючої книжки.",
+  "rating": 4
+}
+
+
+### Create a Review with rating out of 1 - 5 range
+# @name createReviewWithInvalidRating
+POST {{baseUrl}}/reviews
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "text": "Invalid Rating",
+  "rating": 6
+}
+
+
+### Create Review with Fraction Rating
+# @name createReviewWithFractionalRating
+POST {{baseUrl}}/reviews
+Content-Type: application/json
+
+{
+  "bookId": 1,
+  "text": "Рейтинг має бути цілим числом.",
+  "rating": 4.5
+}
+
+
+### Delete review
+# @name deleteReview
+DELETE {{baseUrl}}/reviews/1
+
+
+### Delete not existing review
+# @name deleteMissingReview
+DELETE {{baseUrl}}/reviews/999
